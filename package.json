@@ -1,0 +1,13 @@
+{
+  "name": "kaka-digital-image",
+  "private": true,
+  "version": "1.0.0",
+  "packageManager": "pnpm@11.10.0",
+  "scripts": {
+    "dev": "pnpm --parallel --filter web --filter api dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "format": "pnpm -r format",
+    "typecheck": "pnpm -r typecheck"
+  }
+}
