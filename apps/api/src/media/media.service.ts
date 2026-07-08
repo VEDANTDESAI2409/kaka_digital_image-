@@ -11,35 +11,27 @@ import { GetMediaDto } from './dto/get-media.dto';
 import { UpdateMediaDto } from './dto/update-media.dto';
 import * as fs from 'fs';
 import * as path from 'path';
+import { BulkUpdateStatusDto } from './dto/bulk-update-status.dto';
+import { BulkUpdateSectionDto } from './dto/bulk-update-section.dto';
+import { MediaValidationService } from './media-validation.service';
+
 
 @Injectable()
 export class MediaService {
-  constructor(
-    private readonly prisma: PrismaService,
-  ) {}
+ constructor(
+  private readonly prisma: PrismaService,
+  private readonly validation: MediaValidationService,
+) {}
 
   async upload(
     file: Express.Multer.File,
     userId: string,
     dto: UploadMediaDto,
   ) {
-    const album = await this.prisma.album.findUnique({
-  where: {
-    id: dto.albumId,
-  },
-});
-
-if (!album) {
-  throw new NotFoundException(
-    'Album not found',
-  );
-}
-
-if (album.eventId !== dto.eventId) {
-  throw new BadRequestException(
-    'Album does not belong to this event',
-  );
-}
+  await this.validation.validateAlbumBelongsToEvent(
+  dto.albumId,
+  dto.eventId,
+);
     return this.prisma.media.create({
       data: {
         filename: file.filename,
@@ -178,24 +170,12 @@ async update(
   }
 
   if (dto.sectionId) {
-  const section = await this.prisma.section.findUnique({
-    where: {
-      id: dto.sectionId,
-    },
-  });
-
-  if (!section) {
-    throw new NotFoundException(
-      'Section not found',
+    await this.validation.validateSectionBelongsToAlbum(
+      dto.sectionId,
+      media.albumId,
     );
   }
 
-  if (section.albumId !== media.albumId) {
-    throw new BadRequestException(
-      'Section does not belong to the same album',
-    );
-  }
-}
   return this.prisma.media.update({
     where: {
       id,
@@ -265,4 +245,72 @@ async remove(id: string) {
     message: 'Media deleted successfully',
   };
 }
+
+async bulkUpdateStatus(
+  dto: BulkUpdateStatusDto,
+) {
+  const result = await this.prisma.media.updateMany({
+    where: {
+      id: {
+        in: dto.mediaIds,
+      },
+    },
+    data: {
+      status: dto.status,
+    },
+  });
+
+  return {
+    message: `${result.count} media item(s) updated successfully`,
+    updatedCount: result.count,
+  };
+}
+
+async bulkUpdateSection(
+  dto: BulkUpdateSectionDto,
+) {
+  const mediaList = await this.prisma.media.findMany({
+    where: {
+      id: {
+        in: dto.mediaIds,
+      },
+    },
+  });
+
+  if (mediaList.length === 0) {
+    throw new NotFoundException(
+      'No media found',
+    );
+  }
+
+  for (const media of mediaList) {
+    if (media.albumId !== mediaList[0].albumId) {
+      throw new BadRequestException(
+        'Selected media must belong to the same album',
+      );
+    }
+  }
+
+  await this.validation.validateSectionBelongsToAlbum(
+    dto.sectionId,
+    mediaList[0].albumId,
+  );
+
+  const result = await this.prisma.media.updateMany({
+    where: {
+      id: {
+        in: dto.mediaIds,
+      },
+    },
+    data: {
+      sectionId: dto.sectionId,
+    },
+  });
+
+  return {
+    message: `${result.count} media item(s) moved successfully`,
+    updatedCount: result.count,
+  };
+}
+
 }

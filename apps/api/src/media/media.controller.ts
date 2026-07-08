@@ -31,6 +31,8 @@ import { UploadMediaDto } from './dto/upload-media.dto';
 
 import { GetMediaDto } from './dto/get-media.dto';
 import { UpdateMediaDto } from './dto/update-media.dto';
+import { BulkUpdateStatusDto } from './dto/bulk-update-status.dto';
+import { BulkUpdateSectionDto } from './dto/bulk-update-section.dto';
 
 @ApiTags('Media')
 @ApiBearerAuth('JWT')
@@ -119,6 +121,25 @@ findAll(
   @Query() dto: GetMediaDto,
 ) {
   return this.mediaService.findAll(dto);
+}
+@Patch('bulk/status')
+@ApiOperation({
+  summary: 'Bulk update media status',
+})
+bulkUpdateStatus(
+  @Body() dto: BulkUpdateStatusDto,
+) {
+  return this.mediaService.bulkUpdateStatus(dto);
+}
+
+@Patch('bulk/section')
+@ApiOperation({
+  summary: 'Bulk move media to section',
+})
+bulkUpdateSection(
+  @Body() dto: BulkUpdateSectionDto,
+) {
+  return this.mediaService.bulkUpdateSection(dto);
 }
 
 @Patch(':id')
