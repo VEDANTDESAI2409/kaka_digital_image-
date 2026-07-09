@@ -1,183 +1,213 @@
-# Kaka Digital Image
+# Kaka Digital Image ERP
 
-## Version
-
-v1.0 Architecture
+> Enterprise Resource Planning (ERP) system for professional photography studios.
 
 ---
 
-# Vision
+# Overview
 
-Kaka Digital Image is a complete Photography Studio Management Platform.
+Kaka Digital Image ERP is a complete photography business management platform built to manage the entire lifecycle of a photography project—from client booking to final photo delivery.
 
-The platform manages the entire lifecycle of a photography project:
+The system is designed around real-world photography workflows and is divided into two major parts:
 
-Client
-→ Booking
-→ Multiple Events
-→ Staff Assignment
-→ Media Upload
-→ Editing Workflow
-→ Client Gallery
-→ Album Selection
-→ Final Delivery
+- Internal ERP (Admin, Photographer, Editor)
+- Client Gallery (Public)
 
 ---
 
-# Technology Stack
+# Goals
 
-Frontend
+The primary goals of this project are:
+
+- Manage clients and bookings
+- Manage photography events
+- Assign photographers and editors
+- Organize thousands of photos efficiently
+- Allow clients to view and select photos
+- Deliver final edited galleries
+- Scale to support multiple photographers and events
+
+---
+
+# Tech Stack
+
+## Backend
+
+- NestJS
+- Prisma ORM
+- PostgreSQL
+- Passport JWT
+- Swagger
+
+## Frontend
+
 - Next.js
 - React
-- TypeScript
 - Tailwind CSS
+- TypeScript
 
-Backend
-- NestJS
-- REST API
+## Package Manager
 
-Database
-- PostgreSQL
-- Prisma ORM
+- pnpm
 
-Storage
-- Amazon S3
+## Monorepo
 
-Authentication
-- JWT
-
-Future
-- AI Face Recognition
-- Mobile Application
+- Turborepo
 
 ---
 
 # Project Structure
 
-Kaka-Digital-Image/
+```
+kaka-digital-image/
 
 apps/
-
+    api/
     web/
 
-    api/
-
 packages/
-
+    shared/
     ui/
-
-    config/
-
-    types/
 
 docs/
 
-assets/
+package.json
+pnpm-workspace.yaml
+turbo.json
+```
 
 ---
 
-# User Types
+# Backend Architecture
 
-Admin
+```
+Controller
+      │
+      ▼
+Service
+      │
+      ▼
+Prisma ORM
+      │
+      ▼
+PostgreSQL
+```
 
-Photographer
+Every module follows the same architecture:
 
-Editor
+```
+Module
 
-Client (No login in Version 1)
+Controller
 
----
+Service
 
-# Booking Flow
+DTO
 
-Client
+Validation
 
-↓
-
-Booking
-
-↓
-
-Quotation
-
-↓
-
-Advance Payment
-
-↓
-
-Booking Confirmed
-
-↓
-
-Multiple Events Created
-
-↓
-
-Assign Staff
-
-↓
-
-Media Upload
-
-↓
-
-Editing
-
-↓
-
-Review
-
-↓
-
-Gallery Delivery
-
-↓
-
-Album Selection
-
-↓
-
-Final Delivery
+Prisma
+```
 
 ---
 
-# Event Structure
+# Authentication
 
-Booking
+Authentication uses JWT.
+
+Workflow:
+
+```
+Register
 
 ↓
+
+Hash Password (bcrypt)
+
+↓
+
+Store User
+
+↓
+
+Login
+
+↓
+
+Generate JWT
+
+↓
+
+Bearer Token
+
+↓
+
+Protected API
+```
+
+Authorization uses:
+
+- JwtAuthGuard
+- RolesGuard
+
+Roles:
+
+- ADMIN
+- PHOTOGRAPHER
+- EDITOR
+
+---
+
+# Module Architecture
+
+Current modules:
+
+```
+Auth
+
+Users
+
+Clients
+
+Bookings
 
 Events
 
-↓
+Assignments
 
-Haldi
+Albums
 
-↓
+Sections
 
-Mehendi
+Media
 
-↓
+Gallery
+```
 
-Wedding
+Future modules:
 
-↓
+```
+Dashboard
 
-Reception
+Notifications
 
-Each event has:
+Reports
 
-- Albums
-- Media
-- Guest Upload
-- QR Gallery
-- QR Upload
-- Assigned Staff
+Payments
+
+AI
+
+Settings
+```
 
 ---
 
-# Gallery Structure
+# Business Hierarchy
+
+```
+Client
+
+↓
 
 Booking
 
@@ -187,172 +217,320 @@ Event
 
 ↓
 
-Albums
+Album
+
+↓
+
+Section
+
+↓
+
+Media
+```
+
+Relationships:
+
+```
+Client
+    │
+    ▼
+
+Booking
+    │
+    ▼
+
+Event
+    │
+    ├── Albums
+    │
+    ├── Assignments
+    │
+    ├── QR Codes
+    │
+    └── Media
+```
+
+---
+
+# Media Architecture
+
+```
+Upload
 
 ↓
 
 Media
 
-Media Types
+↓
 
-PHOTO
+Album
 
-VIDEO
+↓
 
-HIGHLIGHT_FILM
+Section
 
-FULL_MOVIE
+↓
 
-ALBUM_PDF
+Status
 
-PRINT_FILE
+↓
+
+Gallery
+```
+
+Media Status:
+
+```
+UPLOADED
+
+↓
+
+EDITING
+
+↓
+
+REVIEW
+
+↓
+
+APPROVED
+
+↓
+
+DELIVERED
+```
+
+Bulk Operations:
+
+- Bulk Status Update
+- Bulk Section Assignment
 
 ---
 
-# QR System
+# Gallery Architecture
 
-Each event owns two QR Codes.
+One Event = One Gallery
 
-Gallery QR
+```
+Event
 
-Guests can:
+↓
 
-- View Media
+Gallery
 
-- Download Media
+↓
 
-- Favorite Media
+Albums
 
-Upload QR
+↓
 
-Guests can:
+Sections
 
-- Upload Photos
+↓
 
-- Upload Videos
+Approved Photos
+```
+
+Every event has:
+
+```
+galleryToken
+```
+
+Example:
+
+```
+https://gallery.kakadigitalimage.com/gallery/{galleryToken}
+```
+
+Only APPROVED photos are visible to clients.
 
 ---
 
-# Editing Workflow
+# Folder Structure (API)
 
-Uploaded
+```
+src/
 
-↓
+auth/
 
-Editing
+users/
 
-↓
+clients/
 
-Review
+bookings/
 
-↓
+events/
 
-Approved
+assignments/
 
-↓
+albums/
 
-Delivered
+sections/
+
+media/
+
+gallery/
+
+common/
+
+prisma/
+```
+
+Every module contains:
+
+```
+controller
+
+service
+
+module
+
+dto
+```
 
 ---
 
-# Staff Assignment
+# API Design Principles
 
-Every event is assigned to individual users.
+Internal APIs
+
+- Authentication required
+- Admin/Editor roles
+- Full CRUD
+- Bulk Operations
+
+Public APIs
+
+- Token based
+- Read only
+- No authentication required
+- Limited response
+
+---
+
+# Validation Strategy
+
+Business rules are validated in the Service layer.
 
 Examples:
 
-Lead Photographer
+Album must belong to Event.
 
-Photographer
+Section must belong to Album.
 
-Cinematographer
+Only APPROVED media is visible in Gallery.
 
-Drone Operator
-
-Editor
-
-Assistant
+Future validation services may be extracted for shared business rules.
 
 ---
 
-# Database Principles
+# Error Handling
 
-Use cuid() IDs
+Global Exception Filter
 
-Soft Deletes
+Global Validation Pipe
 
-Audit Logs
+Response Interceptor
 
-Enums instead of strings
-
-Indexes on searchable columns
-
-Never store files inside PostgreSQL
-
-Store only metadata
+Consistent API responses across the project.
 
 ---
 
-# Storage
+# Documentation
 
-All media files are stored in Amazon S3.
+Project documentation lives inside:
 
-Database stores only:
+```
+docs/
+```
 
-Storage Key
+Including:
 
-Thumbnail
-
-Preview
-
-Metadata
+- Architecture
+- Database
+- API
+- Business Workflow
+- Roadmap
+- Changelog
 
 ---
 
-# Future Features
+# Future Architecture
 
-Face Recognition
+```
+Dashboard
 
-Favorite Photos
+↓
 
-Client Album Selection
+Analytics
 
-Print Orders
+↓
 
-Invoices
+Reports
 
-WhatsApp Notifications
+↓
+
+Notifications
+
+↓
+
+Payments
+
+↓
+
+AI Face Recognition
+
+↓
 
 Mobile App
 
-AI Search
+↓
 
-Studio Analytics
-
----
-
-# Development Rules
-
-Never edit migrations manually.
-
-Always use Prisma Migrate.
-
-Never store passwords.
-
-Always store password hashes.
-
-Use REST APIs.
-
-Keep business logic inside services.
-
-Controllers should stay thin.
-
-Never expose internal IDs unnecessarily.
-
-Every new feature must be reviewed before implementation.
+Cloud Storage
+```
 
 ---
 
-# Long-Term Goal
+# Development Principles
 
-Build a modern Photography Studio Operating System that can eventually be used by other studios in the future.
+- Feature-first architecture
+- Modular design
+- Reusable services
+- Business rule validation
+- Consistent naming
+- RESTful APIs
+- Production-ready code
+- Documentation-first development
+
+---
+
+# Current Status
+
+Authentication
+
+✅ Complete
+
+Business Modules
+
+✅ Complete
+
+Media Management
+
+✅ Complete
+
+Gallery
+
+🚧 In Progress
+
+Client Selection
+
+⏳ Planned
+
+Delivery
+
+⏳ Planned
+
+AI Features
+
+⏳ Planned
