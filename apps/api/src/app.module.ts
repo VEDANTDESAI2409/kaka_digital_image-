@@ -10,7 +10,8 @@ import { AssignmentsModule } from './assignments/assignments.module';
 import { AlbumsModule } from './albums/albums.module';
 import { SectionsModule } from './sections/sections.module';
 import { MediaModule } from './media/media.module';
-
+import { GalleryModule } from './gallery/gallery.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -28,6 +29,8 @@ import { MediaModule } from './media/media.module';
     AlbumsModule,
     SectionsModule,
     MediaModule,
+    GalleryModule,
+    DashboardModule,
   ],
   
 })

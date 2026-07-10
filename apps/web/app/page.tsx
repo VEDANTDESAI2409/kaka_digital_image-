@@ -1,5 +1,6 @@
 import Image from "next/image";
-
+import UpcomingEvents from "@/components/dashboard/upcoming-events";
+import RecentUploads from "@/components/dashboard/recent-uploads";
 export default function Home() {
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
@@ -62,4 +63,8 @@ export default function Home() {
       </main>
     </div>
   );
+ <div className="grid gap-6 lg:grid-cols-2">
+  <UpcomingEvents events={dashboard.upcomingEvents} />
+  <RecentUploads uploads={dashboard.recentUploads} />
+</div>
 }

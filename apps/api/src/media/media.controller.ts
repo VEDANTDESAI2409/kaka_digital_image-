@@ -33,6 +33,10 @@ import { GetMediaDto } from './dto/get-media.dto';
 import { UpdateMediaDto } from './dto/update-media.dto';
 import { BulkUpdateStatusDto } from './dto/bulk-update-status.dto';
 import { BulkUpdateSectionDto } from './dto/bulk-update-section.dto';
+import { UploadedFiles } from '@nestjs/common';
+import { FilesInterceptor } from '@nestjs/platform-express';
+
+import { BulkUploadMediaDto } from './dto/bulk-upload-media.dto';
 
 @ApiTags('Media')
 @ApiBearerAuth('JWT')
@@ -113,6 +117,69 @@ export class MediaController {
       dto,
     );
   }
+@Post('upload/bulk')
+@ApiOperation({
+  summary: 'Bulk upload media',
+})
+@ApiConsumes('multipart/form-data')
+@ApiBody({
+  schema: {
+    type: 'object',
+    properties: {
+      files: {
+        type: 'array',
+        items: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+      eventId: {
+        type: 'string',
+      },
+      albumId: {
+        type: 'string',
+      },
+      sectionId: {
+        type: 'string',
+      },
+    },
+    required: [
+      'files',
+      'eventId',
+      'albumId',
+    ],
+  },
+})
+@UseInterceptors(
+  FilesInterceptor('files', 500, {
+    storage: diskStorage({
+      destination: './uploads',
+      filename: (_, file, cb) => {
+        const uniqueName =
+          Date.now() +
+          '-' +
+          Math.round(Math.random() * 1e9);
+
+        cb(
+          null,
+          uniqueName + extname(file.originalname),
+        );
+      },
+    }),
+  }),
+)
+bulkUpload(
+  @UploadedFiles() files: Express.Multer.File[],
+  @Req() req: any,
+  @Body() dto: BulkUploadMediaDto,
+) {
+  return this.mediaService.bulkUpload(
+    files,
+    req.user.sub,
+    dto,
+  );
+}
+
   @Get()
 @ApiOperation({
   summary: 'List media',

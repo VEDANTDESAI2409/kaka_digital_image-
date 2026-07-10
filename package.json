@@ -9,5 +9,8 @@
     "lint": "pnpm -r lint",
     "format": "pnpm -r format",
     "typecheck": "pnpm -r typecheck"
+  },
+  "dependencies": {
+    "js-cookie": "^3.0.8"
   }
 }

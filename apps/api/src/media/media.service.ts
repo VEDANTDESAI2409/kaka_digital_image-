@@ -14,6 +14,8 @@ import * as path from 'path';
 import { BulkUpdateStatusDto } from './dto/bulk-update-status.dto';
 import { BulkUpdateSectionDto } from './dto/bulk-update-section.dto';
 import { MediaValidationService } from './media-validation.service';
+import { BulkUploadMediaDto } from './dto/bulk-upload-media.dto';
+import { MediaStatus, MediaType } from '@prisma/client';
 
 
 @Injectable()
@@ -23,11 +25,11 @@ export class MediaService {
   private readonly validation: MediaValidationService,
 ) {}
 
-  async upload(
-    file: Express.Multer.File,
-    userId: string,
-    dto: UploadMediaDto,
-  ) {
+  async bulkUpload(
+  files: Express.Multer.File[],
+  userId: string,
+  dto: BulkUploadMediaDto,
+) {
   await this.validation.validateAlbumBelongsToEvent(
   dto.albumId,
   dto.eventId,
@@ -49,6 +51,62 @@ export class MediaService {
       },
     });
   }
+
+  async bulkUpload(
+  files: Express.Multer.File[],
+  dto: BulkUploadMediaDto,
+  
+) {
+  // Validate Event → Album
+  await this.validation.validateAlbumBelongsToEvent(
+    dto.albumId,
+    dto.eventId,
+  );
+
+  // Validate Section (if provided)
+  if (dto.sectionId) {
+    await this.validation.validateSectionBelongsToAlbum(
+      dto.sectionId,
+      dto.albumId,
+    );
+  }
+
+  const uploadedMedia: any[] = [];
+
+  for (const file of files) {
+    const media = await this.prisma.media.create({
+      data: {
+  filename: file.filename,
+  originalName: file.originalname,
+  mimeType: file.mimetype,
+
+  path: `uploads/${file.filename}`,
+
+  size: file.size,
+
+  type: file.mimetype.startsWith('image/')
+    ? 'PHOTO'
+    : 'VIDEO',
+
+  eventId: dto.eventId,
+  albumId: dto.albumId,
+  sectionId: dto.sectionId,
+
+  uploadedById: userId,
+},
+    });
+
+    uploadedMedia.push(media);
+  }
+
+  return {
+    message: `${uploadedMedia.length} file(s) uploaded successfully`,
+    uploaded: uploadedMedia.length,
+    failed: 0,
+    total: files.length,
+    media: uploadedMedia,
+  };
+}
 
   async findAll(dto: GetMediaDto) {
   const {

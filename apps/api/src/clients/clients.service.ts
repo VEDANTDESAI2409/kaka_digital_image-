@@ -5,6 +5,7 @@ import { CreateClientDto } from './dto/create-client.dto';
 import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 import { ClientQueryDto } from './dto/client-query.dto';
 import { buildPaginationMeta } from '../common/utils/pagination.util';
+import { UpdateClientDto } from './dto/update-client.dto';
 
 
 @Injectable()
@@ -85,4 +86,36 @@ if (state) {
 ),
   };
 }
+
+async findOne(id: string) {
+  return this.prisma.client.findUnique({
+    where: {
+      id,
+    },
+  });
+}
+
+async update(
+  id: string,
+  dto: UpdateClientDto,
+) {
+  return this.prisma.client.update({
+    where: {
+      id,
+    },
+    data: dto,
+  });
+}
+
+async remove(id: string) {
+  return this.prisma.client.update({
+    where: {
+      id,
+    },
+    data: {
+      deletedAt: new Date(),
+    },
+  });
+}
+
 }

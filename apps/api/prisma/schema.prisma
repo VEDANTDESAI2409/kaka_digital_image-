@@ -256,6 +256,8 @@ model Booking {
 model Event {
   id String @id @default(cuid())
 
+  galleryToken String @unique @default(cuid())
+
   bookingId String
   booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 
@@ -274,8 +276,6 @@ model Event {
   coverMedia Media? @relation("EventCover", fields: [coverMediaId], references: [id], onDelete: SetNull)
 
   status EventStatus @default(UPCOMING)
-
-  galleryToken String? @unique
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
