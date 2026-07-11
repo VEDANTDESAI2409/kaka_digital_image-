@@ -25,38 +25,14 @@ export class MediaService {
   private readonly validation: MediaValidationService,
 ) {}
 
+ 
+
   async bulkUpload(
   files: Express.Multer.File[],
   userId: string,
   dto: BulkUploadMediaDto,
-) {
-  await this.validation.validateAlbumBelongsToEvent(
-  dto.albumId,
-  dto.eventId,
-);
-    return this.prisma.media.create({
-      data: {
-        filename: file.filename,
-        originalName: file.originalname,
-        mimeType: file.mimetype,
-        path: file.path,
-        size: file.size,
-
-        type: dto.type,
-
-        uploadedById: userId,
-
-        eventId: dto.eventId,
-        albumId: dto.albumId,
-      },
-    });
-  }
-
-  async bulkUpload(
-  files: Express.Multer.File[],
-  dto: BulkUploadMediaDto,
-  
-) {
+)
+ {
   // Validate Event → Album
   await this.validation.validateAlbumBelongsToEvent(
     dto.albumId,

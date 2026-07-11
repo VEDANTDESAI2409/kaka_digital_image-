@@ -34,7 +34,7 @@ export default function RecentBookings({
                 </p>
 
                 <p className="text-sm text-slate-500">
-                  {booking.client.name}
+                  {booking.client.primaryContactName}
                 </p>
               </div>
             </div>

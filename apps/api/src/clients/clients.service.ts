@@ -33,6 +33,8 @@ export class ClientsService {
 
   const where: Prisma.ClientWhereInput = {};
 
+  where.deletedAt = null;
+
 if (search) {
   where.OR = [
     {
@@ -88,9 +90,10 @@ if (state) {
 }
 
 async findOne(id: string) {
-  return this.prisma.client.findUnique({
+  return this.prisma.client.findFirst({
     where: {
       id,
+      deletedAt: null,
     },
   });
 }

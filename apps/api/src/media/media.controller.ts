@@ -106,17 +106,8 @@ export class MediaController {
       }),
     }),
   )
-  async upload(
-    @UploadedFile() file: Express.Multer.File,
-    @Body() dto: UploadMediaDto,
-    @Req() req: any,
-  ) {
-    return this.mediaService.upload(
-      file,
-      req.user.id,
-      dto,
-    );
-  }
+  
+  
 @Post('upload/bulk')
 @ApiOperation({
   summary: 'Bulk upload media',
